@@ -8,13 +8,6 @@ def query_openai(prompt, text):
     content = ""
     for chunk in openai.ChatCompletion.create(
         model= os.environ['POPCLIP_OPTION_MODEL'],
-            # "gpt-3.5-turbo",
-            # "gpt-3.5-turbo-16k",
-            # "gpt-3.5-turbo-0613",
-            # "gpt-4",
-            # "gpt-4-0613",
-            # "gpt-4-32k",
-            # "gpt-4-32k-0613",
         messages=[
             {"role": "system", "content":"Revise the following sentences to make them more clear, concise, and coherent . /n Please DO NOT note that you need to list the changes and briefly explain why. /n You will reply to me in Chinese."},
             {"role": "user", "content":text}

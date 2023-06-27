@@ -34,7 +34,7 @@ def get_icon_path():
 def show_response_dialog(content, icon_path):
     script = f'''
     try
-        display dialog "{content}" with icon alias "{icon_path}" with title "popGPT" buttons {{"Copy", "Replace", "I Know"}} default button 1
+        display dialog "{content}" with icon alias "{icon_path}" with title "popGPT" buttons {{"I Know", "Replace", "Copy"}} default button 3
         set button to the button returned of the result
         return button
     on error errMsg
