@@ -9,10 +9,10 @@ client = OpenAI(api_key = os.environ['POPCLIP_OPTION_APIKEY'])
 completion = client.chat.completions.create(
     model= os.environ['POPCLIP_OPTION_MODEL'],
     messages=[
-        {"role": "system", "content": "You are an assistant helping summarize a document. Use this format, replacing text in brackets with the result. Do not include the brackets in the output: /n/n Summary in [Identified language of the document]: /n/n[One-paragaph summary of the document using the identified language.]."},
+        {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": os.environ['POPCLIP_TEXT']},
     ],
-    temperature=0.2,
+    temperature=0.8,
 )
 
 completion_content = completion.choices[0].message.content
