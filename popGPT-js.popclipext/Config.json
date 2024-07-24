@@ -1,0 +1,52 @@
+{
+  "popclip version": 3836,
+  "identifier": "com.spike.popclip.extension.popGPT",
+  "name": "popGPT",
+  "entitlements": ["network"],
+  "description": "Send the selected text to ChatGPT and append the response.",
+  "after": "show-status",
+  "icon": "iconify:simple-icons:openai",
+  "module": "a.js",
+  "options": [
+    {
+      "identifier": "apiKey",
+      "type": "string",
+      "label": "API Key"
+    },
+    {
+      "identifier": "baseURL",
+      "type": "string",
+      "label": "Base URL",
+      "description": "Default is https://api.openai.com/v1"
+    },
+    {
+      "identifier": "model",
+      "type": "string",
+      "label": "Model",
+      "value":  [
+        "gpt-3.5-turbo",
+        "gpt-4-turbo-preview",
+        "gpt-4"
+      ]
+    },
+    {
+      "identifier": "temperature",
+      "type": "string",
+      "label": "Creativity",
+      "value":  [
+        "0",
+        "0.3",
+        "0.5",
+        "0.7",
+        "1.0"
+      ],
+      "valueLabels": [
+        "None",
+        "Low",
+        "Medium",
+        "High",
+        "Maximum"
+      ]
+    }
+  ]
+}
