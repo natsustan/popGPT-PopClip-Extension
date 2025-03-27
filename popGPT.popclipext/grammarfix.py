@@ -3,7 +3,10 @@ from openai import OpenAI
 import subprocess
 from subprocess import Popen, PIPE, call
 
-client = OpenAI(api_key = os.environ['POPCLIP_OPTION_APIKEY'])
+client = OpenAI(
+    api_key = os.environ['POPCLIP_OPTION_APIKEY'],
+    base_url = "https://openrouter.ai/api/v1",
+    )
 
 # Create chat completion with the Chat API 
 completion = client.chat.completions.create(

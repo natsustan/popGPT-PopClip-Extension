@@ -41,15 +41,15 @@
                 <string>multiple</string>
                 <key>Option Values</key>
                 <array>
-                    <string>gpt-3.5-turbo</string>
-                    <string>gpt-3.5-turbo-0613</string>
-                    <string>gpt-3.5-turbo-1106</string>
-                    <string>gpt-3.5-turbo-16k</string>
-                    <string>gpt-4</string>
-                    <string>gpt-4-0613</string>
-                    <string>gpt-4-32k</string>
-                    <string>gpt-4-32k-0613</string>
-                    <string>gpt-4-1106-preview</string>
+                    <string>openai/gpt-4o</string>
+                    <string>openai/o1-pro</string>
+                    <string>openai/o1-mini</string>
+                    <string>anthropic/claude-3.7-sonnet</string>
+                    <string>anthropic/claude-3.7-sonnet:thinking</string>
+                    <string>deepseek/deepseek-chat-v3-0324:free</string>
+                    <string>deepseek/deepseek-chat</string>
+                    <string>deepseek/deepseek-chat:free</string>
+                    <string>deepseek/deepseek-r1:free</string>
                 </array>
             </dict>
         </array>
