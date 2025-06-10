@@ -2,50 +2,88 @@ import os
 from openai import OpenAI
 import subprocess
 from subprocess import Popen, PIPE, call
+import json
 
-client = OpenAI(
-    api_key = os.environ['POPCLIP_OPTION_APIKEY'],
-    base_url = "https://openrouter.ai/api/v1",
+try:
+    # 初始化OpenAI客户端
+    client = OpenAI(
+        api_key=os.environ['POPCLIP_OPTION_APIKEY'],
+        base_url="https://openrouter.ai/api/v1",
     )
 
-# Create chat completion with the Chat API 
-completion = client.chat.completions.create(
-    model= os.environ['POPCLIP_OPTION_MODEL'],
-    messages=[
-        {"role": "system", "content": "Revise the following sentences to make them more clear, concise, and coherent . /n Please DO NOT note that you need to list the changes and briefly explain why. /n You will reply to me in Chinese."},
-        {"role": "user", "content": os.environ['POPCLIP_TEXT']},
-    ],
-    temperature=0.2,
-)
+    # 获取用户选中的文本
+    input_text = os.environ.get('POPCLIP_TEXT', '')
+    
+    if not input_text:
+        print("ERROR: No text selected")
+        exit(1)
 
-completion_content = completion.choices[0].message.content
+    # 创建聊天完成请求
+    completion = client.chat.completions.create(
+        model=os.environ['POPCLIP_OPTION_MODEL'],
+        messages=[
+            {"role": "system", "content": "Revise the following sentences to make them more clear, concise, and coherent. Please DO NOT note that you need to list the changes and briefly explain why. You will reply to me in Chinese."},
+            {"role": "user", "content": input_text},
+        ],
+        temperature=0.2,
+    )
 
-# Get Icon Path
-def get_icon_path():
-    disk_prefix = subprocess.Popen('osascript -e \'path to desktop as text\'', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode()
-    disk_prefix = disk_prefix.split(':')[0]
-    icon_path = disk_prefix + os.getcwd().replace('/', ':') + ':assets:openai.svg'
-    return icon_path
+    # 获取回复内容
+    completion_content = completion.choices[0].message.content
 
-icon_path = get_icon_path()
+    # 使用临时文件存储回复内容，避免特殊字符问题
+    with open('/tmp/popclip_response.txt', 'w', encoding='utf-8') as f:
+        f.write(completion_content)
 
-# Create the Dialog
-def show_response_dialog():
-    script = f'''
+    # 创建安全的AppleScript
+    apple_script = '''
+    set responseFile to "/tmp/popclip_response.txt"
+    set responseContent to (do shell script "cat " & quoted form of responseFile)
+    
     try
-        display dialog "{completion_content}" with icon alias "{icon_path}" with title "popGPT" buttons {{"I Know", "Copy", "Replace"}} default button 3
-        set button to the button returned of the result
-        return button
+        set dialogResult to display dialog responseContent with title "popGPT" buttons {"I Know", "Copy", "Replace"} default button 3
+        set buttonPressed to button returned of dialogResult
+        do shell script "echo " & quoted form of buttonPressed
     on error errMsg
-        display alert errMsg
+        do shell script "echo 'ERROR: " & errMsg & "'"
     end try
     '''
+    
+    # 执行AppleScript并获取结果
     p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True, text=True)
-    stdout, stderr = p.communicate(script)
-    if stdout.strip() == "Copy" or stdout.strip() == "Replace":
-        call(('osascript', '-e', f'set the clipboard to "{completion_content}"'))
-        if stdout.strip() == "Replace":
-            call(('osascript', '-e', 'tell application "System Events" to keystroke "v" using command down'))
-
-response = show_response_dialog()
-print(response)
+    stdout, stderr = p.communicate(apple_script)
+    
+    # 输出可能的错误信息以便调试
+    if stderr:
+        print(f"ERROR: {stderr}")
+        exit(1)
+    
+    # 处理按钮操作
+    button_pressed = stdout.strip()
+    
+    if button_pressed == "Copy" or button_pressed == "Replace":
+        # 将回复内容放入剪贴板
+        copy_script = f'''
+        do shell script "cat /tmp/popclip_response.txt | pbcopy"
+        '''
+        subprocess.call(['osascript', '-e', copy_script])
+        
+        # 如果选择替换，则执行粘贴操作
+        if button_pressed == "Replace":
+            paste_script = '''
+            tell application "System Events" to keystroke "v" using command down
+            '''
+            subprocess.call(['osascript', '-e', paste_script])
+    
+    # 返回按钮结果
+    print(button_pressed)
+    
+except Exception as e:
+    # 异常处理，确保错误可见
+    error_message = str(e).replace('"', '\\"')
+    error_script = f'''
+    display dialog "PopClip扩展出错: {error_message}" buttons {{"OK"}} default button 1 with icon caution
+    '''
+    subprocess.call(['osascript', '-e', error_script])
+    print(f"ERROR: {str(e)}")
+    exit(1)

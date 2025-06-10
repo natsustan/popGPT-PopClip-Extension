@@ -8,7 +8,6 @@ client = OpenAI(
     base_url = "https://openrouter.ai/api/v1",
     )
 
-
 # Create chat completion with the Chat API 
 completion = client.chat.completions.create(
     model= os.environ['POPCLIP_OPTION_MODEL'],
@@ -16,7 +15,7 @@ completion = client.chat.completions.create(
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": os.environ['POPCLIP_TEXT']},
     ],
-    temperature=0.8,
+    temperature=0.7,
 )
 
 completion_content = completion.choices[0].message.content
